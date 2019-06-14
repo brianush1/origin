@@ -832,10 +832,18 @@ namespace origin {
 
 	void type_assigner::walk(un_expr* expr) {
 		walk_expr(expr->expr);
-		// TODO: operator types
-		auto typing = memory.allocate<origin::typing>();
-		typing->alias_name = typing->name = "<error type>";
-		expr->typing = typing;
+		vardecl* overload = find_overload("operator"s + expr->op, expr->expr->typing, {});
+		if (overload == bad_ptr) {
+			diagnostics.push_back(error("no overload of member operator"s + expr->op + " matches the given parameters"s,
+				expr->expr->start, expr->expr->end));
+		}
+		else if (overload == nullptr) {
+			diagnostics.push_back(error("undefined member operator"s + expr->op,
+				expr->expr->start, expr->expr->end));
+		}
+		else {
+			expr->typing = overload->typing->templates[0];
+		}
 	}
 
 	void type_assigner::walk(compilation_unit* unit) {
@@ -885,6 +893,10 @@ namespace origin {
 		}
 		for (auto program : *unit) {
 			current_program = program;
+			downscope();
+			for (auto s : program->vardecls) {
+				current_scope->declare(s->variable, s->typing);
+			}
 			for (auto classdef : program->classes) {
 				if (classdef->generics.size() == 0) {
 					for (auto stat : classdef->vardecls) {
@@ -892,12 +904,15 @@ namespace origin {
 					}
 				}
 			}
-		}
-		for (auto program : *unit) {
-			current_program = program;
+			downscope(); // we want to prevent "duplicate variable declaration" messages
+			// so we define an outer scope for hoisting purposes, and an inner scope for actual definitions
+			// "but won't that refer to an uninitialized variable?" you ask?
+			// yes, but this is just a type analyzer; our compiler will take care of that
 			for (auto s : program->vardecls) {
 				walk(s);
 			}
+			upscope();
+			upscope();
 		}
 	}
 }

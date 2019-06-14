@@ -86,7 +86,7 @@ namespace origin {
 		prefix_ops["~"] = 14;
 		prefix_ops["!"] = 14;
 		prefix_ops["-"] = 14;
-		prefix_ops["+"] = 14;
+		prefix_ops["+"] = 14; // this is a useless operator
 
 		//linfix_ops["::"] = 16;
 
@@ -587,7 +587,8 @@ namespace origin {
 						}
 					}
 					bool can_override = infix_parselets.find(op) != infix_parselets.end()
-						|| op == "[=";
+						|| prefix_parselets.find(op) != prefix_parselets.end()
+						|| op == "[=" || op == "<=>";
 					std::unordered_set<std::string> no_list;
 					no_list.insert("=");
 					no_list.insert("*=");
@@ -602,12 +603,25 @@ namespace origin {
 					no_list.insert("^=");
 					no_list.insert(".");
 					no_list.insert("::");
+					no_list.insert("||"); // we need to short circuit
+					no_list.insert("&&");
+					no_list.insert("!="); // just override ==
+					// we have <=> for these
+					no_list.insert("<=");
+					no_list.insert(">=");
+					no_list.insert("<");
+					no_list.insert(">");
+					// these are just sugar for +=1 and -=1
+					no_list.insert("++");
+					no_list.insert("--");
 					if (!can_override || no_list.find(op) != no_list.end()) {
 						diagnostics.push_back(error("cannot override operator"s,
 							vardecl->start, lexer.last()));
 					}
 					vardecl->variable = "operator"s + op;
 					lambda* lambda = read_func_part(typing);
+					// should I maybe check that the parameters the operators take in are valid?
+					// maybe just warn about it, but not enforce it
 					vardecl->init_value = lambda;
 					vardecl->typing = lambda->typing;
 					vardecl->end = lexer.last();

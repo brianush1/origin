@@ -56,7 +56,7 @@ void main(int x) {
 	def[8] = lol;
 	def[6];
 	int @return;
-	@return = 2;
+	@return = -2;
 	return 23;
 }
 ):<"s, "\t"s, "    "s));
@@ -78,74 +78,128 @@ alias ulong = uint128;
 alias char = ushort;
 alias string = char[];
 
+alias void = null; // unlike other languages, we don't distinguish between null and void
+
+struct null {}
+
 // Integral structures
 struct int8 {
 public:
+	int8 operator+() {}
+	int8 operator-() {}
 	int8 operator+(int8 x) {}
 	int8 operator-(int8 x) {}
+	int8 operator*(int8 x) {}
+	int8 operator/(int8 x) {}
+	int8 operator%(int8 x) {}
 	int8 operator<<~(int8 x) {}
 	int8 operator~>>(int8 x) {}
 }
 struct int16 {
 public:
+	int16 operator+() {}
+	int16 operator-() {}
 	int16 operator+(int16 x) {}
 	int16 operator-(int16 x) {}
+	int16 operator*(int16 x) {}
+	int16 operator/(int16 x) {}
+	int16 operator%(int16 x) {}
 	int16 operator<<~(int16 x) {}
 	int16 operator~>>(int16 x) {}
 }
 struct int32 {
 public:
+	int32 operator+() {}
+	int32 operator-() {}
 	int32 operator+(int32 x) {}
 	int32 operator-(int32 x) {}
+	int32 operator*(int32 x) {}
+	int32 operator/(int32 x) {}
+	int32 operator%(int32 x) {}
 	int32 operator<<~(int32 x) {}
 	int32 operator~>>(int32 x) {}
 }
 struct int64 {
 public:
+	int64 operator+() {}
+	int64 operator-() {}
 	int64 operator+(int64 x) {}
 	int64 operator-(int64 x) {}
+	int64 operator*(int64 x) {}
+	int64 operator/(int64 x) {}
+	int64 operator%(int64 x) {}
 	int64 operator<<~(int64 x) {}
 	int64 operator~>>(int64 x) {}
 }
 struct int128 {
 public:
+	int128 operator+() {}
+	int128 operator-() {}
 	int128 operator+(int128 x) {}
 	int128 operator-(int128 x) {}
+	int128 operator*(int128 x) {}
+	int128 operator/(int128 x) {}
+	int128 operator%(int128 x) {}
 	int128 operator<<~(int128 x) {}
 	int128 operator~>>(int128 x) {}
 }
 struct uint8 {
 public:
+	uint8 operator+() {}
+	uint8 operator-() {}
 	uint8 operator+(uint8 x) {}
 	uint8 operator-(uint8 x) {}
+	uint8 operator*(uint8 x) {}
+	uint8 operator/(uint8 x) {}
+	uint8 operator%(uint8 x) {}
 	uint8 operator<<~(uint8 x) {}
 	uint8 operator~>>(uint8 x) {}
 }
 struct uint16 {
 public:
+	uint16 operator+() {}
+	uint16 operator-() {}
 	uint16 operator+(uint16 x) {}
 	uint16 operator-(uint16 x) {}
+	uint16 operator*(uint16 x) {}
+	uint16 operator/(uint16 x) {}
+	uint16 operator%(uint16 x) {}
 	uint16 operator<<~(uint16 x) {}
 	uint16 operator~>>(uint16 x) {}
 }
 struct uint32 {
 public:
+	uint32 operator+() {}
+	uint32 operator-() {}
 	uint32 operator+(uint32 x) {}
 	uint32 operator-(uint32 x) {}
+	uint32 operator*(uint32 x) {}
+	uint32 operator/(uint32 x) {}
+	uint32 operator%(uint32 x) {}
 	uint32 operator<<~(uint32 x) {}
 	uint32 operator~>>(uint32 x) {}
 }
 struct uint64 {
 public:
+	uint64 operator+() {}
+	uint64 operator-() {}
 	uint64 operator+(uint64 x) {}
 	uint64 operator-(uint64 x) {}
+	uint64 operator*(uint64 x) {}
+	uint64 operator/(uint64 x) {}
+	uint64 operator%(uint64 x) {}
 	uint64 operator<<~(uint64 x) {}
 	uint64 operator~>>(uint64 x) {}
 }
 struct uint128 {
 public:
+	uint128 operator+() {}
+	uint128 operator-() {}
 	uint128 operator+(uint128 x) {}
 	uint128 operator-(uint128 x) {}
+	uint128 operator*(uint128 x) {}
+	uint128 operator/(uint128 x) {}
+	uint128 operator%(uint128 x) {}
 	uint128 operator<<~(uint128 x) {}
 	uint128 operator~>>(uint128 x) {}
 }
@@ -155,11 +209,15 @@ public:
 	T operator()(Args args) {}
 }
 
+// not valid syntax yet, but this is how function overloads will be done:
+// (with the necessary syntax sugar, of course, cuz this is just ugly)
 /*struct function_combinator<A : function<ARet, AArgs...>, B : function<BRet, BArgs...>> {
 private:
 	A fn1;
 	B fn2;
 public:
+	// we make use of the fact that operators can be overloaded
+	// but functions are just objects, so we can't overload them as easily
 	ARet operator()(AArgs args) {}
 	BRet operator()(BArgs args) {}
 }*/
@@ -174,6 +232,7 @@ public:
 	T operator[]=(int index, T value) {}
 
 	T[] slice(int start, int end) {
+		// TODO: (and I can't believe this isn't done) if statements
 		//if (end < 0) {
 			end = self.length + end + 1;
 		//}
