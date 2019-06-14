@@ -1,0 +1,90 @@
+Operator Precedence:
+
+Group 1
+Scoperes	::
+
+Group 2 (LTR)
+Index		.
+Subsc		[]
+Call		()
+Post-add	++
+Post-sub	--
+
+Group 3 (RTL)
+Pre-add		++
+Pre-sub		--
+Bnot		~
+Not			!
+Negate		-
+Noop		+
+Cast		()
+
+Group 4 (LTR)
+Mul			*
+Div			/
+Mod			%
+
+Group 5 (LTR)
+Add			+
+Sub			-
+
+Group 6 (LTR)
+Lsh			<<
+Rsh			>>
+
+Group 7 (LTR)
+Lt			<
+Gt			>
+Le			<=
+Ge			>=
+
+Group 8 (LTR)
+Eq			==
+Neq			!=
+
+Group 9 (LTR)
+Band		&
+
+Group 10 (LTR)
+Bxor		^
+
+Group 11 (LTR)
+Bor			|
+
+Group 12 (LTR)
+And			&&
+
+Group 13 (LTR)
+Or			||
+
+Group 14 (LTR)
+Cond		?:
+
+Group 15 (RTL)
+Set			=
+Muls		*=
+Divs		/=
+Mods		%=
+Adds		+=
+Subs		-=
+Lshs		<<=
+Rshs		>>=
+Bands		&=
+Bors		|=
+Bxors		^=
+
+Group 16 (LTR)
+Comma		,
+
+Group 17
+Parenthesis	()
+
+Template Definitions:
+<T>
+<T where expr>
+<T...>
+<T... where expr>
+
+Template Expressions:
+T : base		bool
+bool ? T : K	type
