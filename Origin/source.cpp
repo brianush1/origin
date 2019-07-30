@@ -7,315 +7,137 @@
 
 using namespace std::string_literals;
 
-std::string replaceAll(std::string str, std::string from, std::string to) {
-	size_t start_pos = str.find(from);
-	if (start_pos == std::string::npos) {
-		return str;
+void help() {
+	std::cout << "Usage: originc {option} project\n";
+	std::cout << "       originc {option} (--file|-f) file\n";
+	std::cout << "Info Options:\n";
+	std::cout << "  --help, -h                            Display this information.\n";
+	std::cout << "  --version, -v                         Display the compiler's version.\n";
+	std::cout << "  --target-list, -l                     List available targets.\n";
+	//std::cout << "  --format-list, -L                     List available output formats.\n";
+	std::cout << "Options:\n";
+	std::cout << "  --target=<arg>, -t <arg>              Specify the compilation target.\n";
+	std::cout << "  --output=<file>, -o <file>            Write the output into <file>. If not\n";
+	std::cout << "                                        specified and stdout is redirected to a\n";
+	std::cout << "                                        file, output will be written to stdout.\n";
+	//std::cout << "  --format=<arg>, -f <arg>              Specify the output format.\n";
+	std::cout << "  --include=<arg>, -I <arg>             Semicolon-separated list of paths to\n";
+	std::cout << "                                        search for packages.\n";
+	std::cout << "  --file, -f                            Compile a single file instead of a project.\n";
+	/*d::cout << "================================================================================" */
+	std::cout << "\nTo submit a bug report, see:\n";
+	std::cout << "<https://github.com/brianush1/origin/issues>.\n";
+}
+
+void version() {
+	std::cerr << "originc version 0.1.0\n";
+}
+
+void target_list() {
+	std::cout << "Targets:\n";
+	std::cout << "  c\n";
+	/*d::cout << "================================================================================" */
+	std::cout << "\nTo submit a bug report, see:\n";
+	std::cout << "<https://github.com/brianush1/origin/issues>.\n";
+}
+
+bool starts_with(const std::string& haystack, const std::string& needle) {
+	if (haystack.size() < needle.size()) return false;
+	return memcmp(haystack.data(), needle.data(), needle.size()) == 0;
+}
+
+std::string prog;
+
+void single_char_arg(std::string& result, std::vector<std::string>& args, size_t& i) {
+	std::string& arg = args[i];
+	if (arg.size() > 2) {
+		result = arg.substr(2);
 	}
-	return replaceAll(str.replace(start_pos, from.length(), to), from, to);
-}
-
-int main() {
-	std::istringstream prog(replaceAll(R":<(namespace asd::def::ghi;
-import stdlib::core;
-
-class clessy<T...> {
-	int a;
-	int b;
-public:
-	string x;
-	function<int, int, T> cool;
-
-	clessy() {
+	else if (args.size() > i + 1) {
+		result = args[++i];
 	}
-
-	int asd(int x) {
-		return x + 2;
-	}
-
-	~clessy() {
-	}
-}
-
-int fib(int y) {
-	return fib(y - 1) + fib(y - 2);
-}
-
-void main(int x) {
-	clessy<int, string> lol;
-	char[] mi;
-	lol.a; // works in the same file
-	lol.cool(2 <<~ 1, 3, mi);
-	lol.asd(1);
-	int[] asd;
-	asd[4] = 3;
-	//asd[8] = lol;
-	asd[6];
-	clessy<int, string>[] def;
-	//def[4] = 3;
-	def[8] = lol;
-	def[6];
-	int @return;
-	@return = -2;
-	return 23;
-}
-):<"s, "\t"s, "    "s));
-	std::istringstream stdprog(replaceAll(R":<(namespace stdlib::core;
-
-// Common aliases
-alias sbyte = int8;
-alias short = int16;
-alias half = int32;
-alias int = int64;
-alias long = int128;
-
-alias byte = uint8;
-alias ushort = uint16;
-alias uhalf = uint32;
-alias uint = uint64;
-alias ulong = uint128;
-
-alias char = ushort;
-alias string = char[];
-
-alias void = null; // unlike other languages, we don't distinguish between null and void
-
-struct null {}
-
-// Integral structures
-struct int8 {
-public:
-	int8 operator+() {}
-	int8 operator-() {}
-	int8 operator+(int8 x) {}
-	int8 operator-(int8 x) {}
-	int8 operator*(int8 x) {}
-	int8 operator/(int8 x) {}
-	int8 operator%(int8 x) {}
-	int8 operator<<~(int8 x) {}
-	int8 operator~>>(int8 x) {}
-}
-struct int16 {
-public:
-	int16 operator+() {}
-	int16 operator-() {}
-	int16 operator+(int16 x) {}
-	int16 operator-(int16 x) {}
-	int16 operator*(int16 x) {}
-	int16 operator/(int16 x) {}
-	int16 operator%(int16 x) {}
-	int16 operator<<~(int16 x) {}
-	int16 operator~>>(int16 x) {}
-}
-struct int32 {
-public:
-	int32 operator+() {}
-	int32 operator-() {}
-	int32 operator+(int32 x) {}
-	int32 operator-(int32 x) {}
-	int32 operator*(int32 x) {}
-	int32 operator/(int32 x) {}
-	int32 operator%(int32 x) {}
-	int32 operator<<~(int32 x) {}
-	int32 operator~>>(int32 x) {}
-}
-struct int64 {
-public:
-	int64 operator+() {}
-	int64 operator-() {}
-	int64 operator+(int64 x) {}
-	int64 operator-(int64 x) {}
-	int64 operator*(int64 x) {}
-	int64 operator/(int64 x) {}
-	int64 operator%(int64 x) {}
-	int64 operator<<~(int64 x) {}
-	int64 operator~>>(int64 x) {}
-}
-struct int128 {
-public:
-	int128 operator+() {}
-	int128 operator-() {}
-	int128 operator+(int128 x) {}
-	int128 operator-(int128 x) {}
-	int128 operator*(int128 x) {}
-	int128 operator/(int128 x) {}
-	int128 operator%(int128 x) {}
-	int128 operator<<~(int128 x) {}
-	int128 operator~>>(int128 x) {}
-}
-struct uint8 {
-public:
-	uint8 operator+() {}
-	uint8 operator-() {}
-	uint8 operator+(uint8 x) {}
-	uint8 operator-(uint8 x) {}
-	uint8 operator*(uint8 x) {}
-	uint8 operator/(uint8 x) {}
-	uint8 operator%(uint8 x) {}
-	uint8 operator<<~(uint8 x) {}
-	uint8 operator~>>(uint8 x) {}
-}
-struct uint16 {
-public:
-	uint16 operator+() {}
-	uint16 operator-() {}
-	uint16 operator+(uint16 x) {}
-	uint16 operator-(uint16 x) {}
-	uint16 operator*(uint16 x) {}
-	uint16 operator/(uint16 x) {}
-	uint16 operator%(uint16 x) {}
-	uint16 operator<<~(uint16 x) {}
-	uint16 operator~>>(uint16 x) {}
-}
-struct uint32 {
-public:
-	uint32 operator+() {}
-	uint32 operator-() {}
-	uint32 operator+(uint32 x) {}
-	uint32 operator-(uint32 x) {}
-	uint32 operator*(uint32 x) {}
-	uint32 operator/(uint32 x) {}
-	uint32 operator%(uint32 x) {}
-	uint32 operator<<~(uint32 x) {}
-	uint32 operator~>>(uint32 x) {}
-}
-struct uint64 {
-public:
-	uint64 operator+() {}
-	uint64 operator-() {}
-	uint64 operator+(uint64 x) {}
-	uint64 operator-(uint64 x) {}
-	uint64 operator*(uint64 x) {}
-	uint64 operator/(uint64 x) {}
-	uint64 operator%(uint64 x) {}
-	uint64 operator<<~(uint64 x) {}
-	uint64 operator~>>(uint64 x) {}
-}
-struct uint128 {
-public:
-	uint128 operator+() {}
-	uint128 operator-() {}
-	uint128 operator+(uint128 x) {}
-	uint128 operator-(uint128 x) {}
-	uint128 operator*(uint128 x) {}
-	uint128 operator/(uint128 x) {}
-	uint128 operator%(uint128 x) {}
-	uint128 operator<<~(uint128 x) {}
-	uint128 operator~>>(uint128 x) {}
-}
-
-struct function<T, Args...> {
-public:
-	T operator()(Args args) {}
-}
-
-// not valid syntax yet, but this is how function overloads will be done:
-// (with the necessary syntax sugar, of course, cuz this is just ugly)
-/*struct function_combinator<A : function<ARet, AArgs...>, B : function<BRet, BArgs...>> {
-private:
-	A fn1;
-	B fn2;
-public:
-	// we make use of the fact that operators can be overloaded
-	// but functions are just objects, so we can't overload them as easily
-	ARet operator()(AArgs args) {}
-	BRet operator()(BArgs args) {}
-}*/
-
-struct array<T> {
-public:
-	int length;
-
-	array(int length) {}
-
-	T operator[](int index) {}
-	T operator[]=(int index, T value) {}
-
-	T[] slice(int start, int end) {
-		// TODO: (and I can't believe this isn't done) if statements
-		//if (end < 0) {
-			end = self.length + end + 1;
-		//}
+	else {
+		std::cerr << rang::style::bold << prog << ": " << rang::fgB::red
+			<< "error: " << rang::style::reset << "expected argument to command line option "
+			<< rang::style::bold << "'" << arg << "'\n";
 	}
 }
-):<"s, "\t"s, "    "s));
-	std::unordered_map<std::istream*, std::string> files = {
-		{&prog, "file.og"},
-		{&stdprog, "stdlib/core.og"}
-	};
-	std::vector<origin::diagnostic> diagnostics;
-	origin::lexer lex1(prog, diagnostics);
-	origin::parser pr1(lex1, diagnostics);
-	origin::lexer lex2(stdprog, diagnostics);
-	origin::parser pr2(lex2, diagnostics);
-	origin::compilation_unit unit;
-	unit.push_back(pr1.read_program());
-	unit.push_back(pr2.read_program());
-	auto assigner = origin::type_assigner(diagnostics);
-	assigner.walk(&unit);
-	//origin::type_checker(diagnostics).walk(&unit);
-	for (origin::diagnostic d : diagnostics) {
-		std::istream& prog = *d.stream;
-		if (d.stream == nullptr) continue;
-		prog.seekg(0);
-		std::string str;
-		size_t start_line = (size_t)-1;
-		size_t end_line;
-		std::string lines;
-		size_t index = 0, end_index = 0;
-		size_t ifirst;
-		size_t isecond;
-		size_t line = 0;
-		while (getline(prog, str)) {
-			line++;
-			index = end_index;
-			end_index += str.length() + 1;
-			if (d.start >= index && d.start < end_index) {
-				start_line = line;
-				ifirst = d.start - index;
-			}
-			if (start_line != (size_t)-1) lines += str + "\n";
-			if (d.end >= index && d.end < end_index) {
-				end_line = line;
-				isecond = d.end - index;
-				break;
-			}
+
+void multichar_arg(std::string& result, std::string& arg, size_t sub, const std::string& name) {
+	if (arg.size() == sub) {
+		std::cerr << rang::style::bold << prog << ": " << rang::fgB::red
+			<< "error: " << rang::style::reset << "expected argument to command line option "
+			<< rang::style::bold << "'" << arg << "'\n";
+	}
+	else if (result == "") {
+		result = arg.substr(sub);
+	} else {
+		std::cerr << rang::style::bold << prog << ": " << rang::fgB::yellow
+			<< "warning: " << rang::style::reset << "extra " << name << " parameter "
+			<< rang::style::bold << "'" << arg.substr(sub) << "'"
+			<< rang::style::reset << " is ignored\n";
+	}
+}
+
+int main(int argc, char** argv) {
+	prog = "originc";
+	std::vector<std::string> args;
+	for (int i = 1; i < argc; ++i) {
+		if (argv[i] == "--"s) {
+			break;
 		}
-		std::istringstream strs(lines);
-		size_t i = start_line;
-		std::cout << rang::style::bold << (d.warning ? "warning" : "error") << "@"
-			<< files[d.stream] << " on line" << (start_line == end_line ? " " : "s ")
-			<< start_line;
-		if (start_line != end_line) {
-			std::cout << "-" << end_line;
+		else if (argv[i] != ""s) {
+			args.push_back(argv[i]);
 		}
-		if (d.template_str != "") {
-			std::cout << " while evaluating template " << d.template_str;
+	}
+	size_t size = args.size();
+	if (size == 0) {
+		help();
+		return 0;
+	}
+	bool requires_input = true;
+	std::string target_str;
+	std::string output_str;
+	std::string include_str;
+	std::string input_str;
+	bool compile_file;
+	FILE* x = stdout;
+	for (size_t i = 0; i < args.size(); ++i) {
+		std::string arg = args[i];
+		if (arg == "--help" || arg == "-h") {
+			help();
+			requires_input = false;
 		}
-		std::cout << ": " << rang::style::reset << d.message << std::endl;
-		for (std::string line; getline(strs, line); i++) {
-			std::cout << line << std::endl;
-			std::cout << (d.warning ? rang::fgB::green : rang::fgB::red);
-			if (i == start_line) {
-				size_t end = start_line == end_line ? isecond : line.length() - ifirst;
-				for (size_t i = 0; i < ifirst; ++i) {
-					std::cout << " ";
-				}
-				for (size_t i = ifirst; i <= end; ++i) {
-					std::cout << "~";
-				}
-			}
-			else if (i == end_line) {
-				for (size_t i = 0; i <= isecond; ++i) {
-					std::cout << "~";
-				}
+		else if (arg == "--version" || arg == "-v") {
+			version();
+			requires_input = false;
+		}
+		else if (arg == "--target-list" || arg == "-l") {
+			target_list();
+			requires_input = false;
+		}
+		else if (starts_with(arg, "--target=")) multichar_arg(target_str, arg, 9, "target");
+		else if (starts_with(arg, "--output=")) multichar_arg(output_str, arg, 9, "output");
+		else if (starts_with(arg, "--include=")) multichar_arg(include_str, arg, 10, "include");
+		else if (starts_with(arg, "-t")) single_char_arg(target_str, args, i);
+		else if (starts_with(arg, "-o")) single_char_arg(output_str, args, i);
+		else if (starts_with(arg, "-I")) single_char_arg(include_str, args, i);
+		else if (arg == "--file" || arg == "-f") compile_file = true;
+		else if (starts_with(arg, "-")) {
+			std::cerr << rang::style::bold << prog << ": " << rang::fgB::red
+				<< "error: " << rang::style::reset << "unrecognized command line option "
+				<< rang::style::bold << "'" << arg << "'\n" << rang::style::reset;
+		}
+		else {
+			if (input_str != "") {
+				std::cerr << rang::style::bold << prog << ": " << rang::fgB::yellow
+					<< "warning: " << rang::style::reset << "extra input source "
+					<< rang::style::bold << "'" << arg << "'"
+					<< rang::style::reset << " is ignored\n";
 			}
 			else {
-				for (size_t i = 0; i < line.length(); ++i) {
-					std::cout << "~";
-				}
+				input_str = arg;
 			}
-			std::cout << rang::style::reset << std::endl;
 		}
 	}
 	return 0;

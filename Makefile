@@ -6,7 +6,7 @@ default:
 all: default
 
 run:
-	./origin
+	./originc
 
 clean:
 	make -C Origin clean

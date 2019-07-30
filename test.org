@@ -1,0 +1,12 @@
+namespace test;
+
+class hi {
+public:
+	hi operator()(hi hi) {
+		return hi;
+	}
+}
+
+hi foo(hi bar, hi baz) {
+	return bar(baz)(baz(bar(baz)));
+}

@@ -1,4 +1,5 @@
 ## Ignore Linux build results
+originc
 origin
 !Origin/
 */*.o

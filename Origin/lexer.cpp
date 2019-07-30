@@ -127,6 +127,50 @@ namespace origin {
 			return { is_keyword ? token_type::keyword
 				: token_type::identifier, &input, data, begin, (size_t)input.tellg() - 1 };
 		}
+		else if (c == '"' || c == '\'') {
+			input.get();
+			std::string data;
+			bool escape = false;
+			while (input.peek() != c || escape) {
+				if (escape) {
+					if (input.peek() >= '0' && input.peek() <= '9') {
+						int value = input.get() - '0';
+						if (input.peek() >= '0' && input.peek() <= '9') {
+							value *= 10;
+							value += input.get() - '0';
+						}
+						if (input.peek() >= '0' && input.peek() <= '9') {
+							value *= 10;
+							value += input.get() - '0';
+						}
+						data.push_back((char)value);
+					}
+					else if (input.peek() == 'a') data.push_back('\a');
+					else if (input.peek() == 'b') data.push_back('\b');
+					else if (input.peek() == 'f') data.push_back('\f');
+					else if (input.peek() == 'n') data.push_back('\n');
+					else if (input.peek() == 'r') data.push_back('\r');
+					else if (input.peek() == 't') data.push_back('\t');
+					else if (input.peek() == 'v') data.push_back('\v');
+					else {
+						data.push_back(input.get());
+					}
+					escape = false;
+				}
+				else if (input.eof() || input.peek() == '\n' || input.peek() == '\r') {
+					diagnostics.push_back({ "unfinished string", &input, begin, (size_t)input.tellg() - 1 });
+					return next_internal(local_ln, local_ln_token);
+				}
+				else if (input.peek() == '\\') {
+					escape = true;
+				}
+				else {
+					data.push_back(input.get());
+				}
+			}
+			input.get(); // this is guaranteed to be ==c or error
+			return { token_type::string, &input, data, begin, (size_t)input.tellg() - 1 };
+		}
 		else {
 			for (const char* const* op = symbols; *op != nullptr; op++) {
 				std::string s(*op);

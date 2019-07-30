@@ -1,4 +1,4 @@
-TARGET := ../origin
+TARGET := ../originc
 LIBS := 
 CC := g++
 CFLAGS := -std=c++17 -g -Wall -Wno-unused-variable

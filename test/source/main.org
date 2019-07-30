@@ -1,0 +1,43 @@
+namespace test::main;
+import stdlib::core;
+
+class clessy<T...> {
+	int a;
+	int b;
+public:
+	string x;
+	function<int, int, T> cool;
+
+	clessy() {
+	}
+
+	int asd(int x) {
+		return x + 2;
+	}
+
+	~clessy() {
+	}
+}
+
+int fib(int y) {
+	return fib(y - 1) + fib(y - 2);
+}
+
+void main(int x) {
+	clessy<int, string> lol;
+	char[] mi;
+	lol.a; // works in the same file
+	lol.cool(2 <<~ 1, 3, mi);
+	lol.asd(1);
+	int[] asd;
+	asd[4] = 3;
+	//asd[8] = lol;
+	asd[6];
+	clessy<int, string>[] def;
+	//def[4] = 3;
+	def[8] = lol;
+	def[6];
+	int @return;
+	@return = -2;
+	return 23;
+}
