@@ -137,7 +137,7 @@ namespace origin {
 		std::vector<variable*> imports;
 		std::vector<vardecl*> vardecls;
 		std::vector<classdef*> classes;
-		std::unordered_map<std::string, typing*> typedefs;
+		std::unordered_map<std::string, typing*> aliases;
 	};
 
 	typedef std::vector<program*> compilation_unit;

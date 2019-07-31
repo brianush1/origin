@@ -29,7 +29,7 @@ namespace origin {
 		program* current_program;
 		std::unordered_map<std::string, classdef*> classes;
 		std::unordered_map<typing*, classdef*> generic_classes;
-		std::unordered_map<std::string, typing*> typedefs;
+		std::unordered_map<std::string, typing*> aliases;
 		std::vector<typing*> current_template;
 	public:
 		type_assigner(std::vector<diagnostic>& diagnostics);

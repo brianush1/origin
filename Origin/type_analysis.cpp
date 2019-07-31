@@ -580,8 +580,8 @@ namespace origin {
 			}
 		}
 		for (auto name : names) {
-			if (typedefs.find(name) != typedefs.end()) {
-				auto res = patch(typedefs[name]);
+			if (aliases.find(name) != aliases.end()) {
+				auto res = patch(aliases[name]);
 				typing->start = res->start;
 				typing->end = res->end;
 				typing->alias = true;
@@ -851,8 +851,8 @@ namespace origin {
 		std::unordered_set<std::string> namespaces;
 		for (auto program : *unit) {
 			namespaces.emplace(program->namespace_name);
-			for (auto s : program->typedefs) {
-				typedefs[program->namespace_name + "::" + s.first] = s.second;
+			for (auto s : program->aliases) {
+				aliases[program->namespace_name + "::" + s.first] = s.second;
 			}
 		}
 		for (auto program : *unit) {

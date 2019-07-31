@@ -667,7 +667,7 @@ namespace origin {
 				lexer.read(token_type::symbol, "="s);
 				auto typing = read_typing();
 				semi();
-				result->typedefs[name] = typing;
+				result->aliases[name] = typing;
 			}
 			else if (lexer.is_next(token_type::identifier)) {
 				result->vardecls.push_back(read_vardecl());
