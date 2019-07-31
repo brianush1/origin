@@ -4,6 +4,9 @@ origin
 !Origin/
 */*.o
 
+## Ignore Origin definition files
+*.odef
+
 # VS Code Settings
 .vscode/
 

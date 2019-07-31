@@ -1,7 +1,9 @@
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include "lexer.h"
 #include "parser.h"
+#include "odef.h"
 #include "type_analysis.h"
 #include "rang.h"
 
@@ -10,20 +12,21 @@ using namespace std::string_literals;
 void help() {
 	std::cout << "Usage: originc {option} project\n";
 	std::cout << "       originc {option} (--file|-f) file\n";
+	std::cout << "       originc {option} (--make-def|-d) file\n";
 	std::cout << "Info Options:\n";
-	std::cout << "  --help, -h                            Display this information.\n";
-	std::cout << "  --version, -v                         Display the compiler's version.\n";
-	std::cout << "  --target-list, -l                     List available targets.\n";
-	//std::cout << "  --format-list, -L                     List available output formats.\n";
+	std::cout << "  --help, -h                         Display this information.\n";
+	std::cout << "  --version, -v                      Display the compiler's version.\n";
+	std::cout << "  --target-list, -l                  List available targets.\n";
+	//std::cout << "  --format-list, -L                  List available output formats.\n";
 	std::cout << "Options:\n";
-	std::cout << "  --target=<arg>, -t <arg>              Specify the compilation target.\n";
-	std::cout << "  --output=<file>, -o <file>            Write the output into <file>. If not\n";
-	std::cout << "                                        specified and stdout is redirected to a\n";
-	std::cout << "                                        file, output will be written to stdout.\n";
-	//std::cout << "  --format=<arg>, -f <arg>              Specify the output format.\n";
-	std::cout << "  --include=<arg>, -I <arg>             Semicolon-separated list of paths to\n";
-	std::cout << "                                        search for packages.\n";
-	std::cout << "  --file, -f                            Compile a single file instead of a project.\n";
+	std::cout << "  --target=<arg>, -t <arg>           Specify the compilation target.\n";
+	std::cout << "  --output=<file>, -o <file>         Write the output into <file>.\n";
+	//std::cout << "  --format=<arg>, -f <arg>           Specify the output format.\n";
+	std::cout << "  --include=<arg>, -I <arg>          Semicolon-separated list of paths to\n";
+	std::cout << "                                     search for packages.\n";
+	std::cout << "  --file, -f                         Compile a single file instead of a project.\n";
+	std::cout << "  --make-def, -d                     Generate a definition file for a single\n";
+	std::cout << "                                     source file.\n";
 	/*d::cout << "================================================================================" */
 	std::cout << "\nTo submit a bug report, see:\n";
 	std::cout << "<https://github.com/brianush1/origin/issues>.\n";
@@ -79,6 +82,8 @@ void multichar_arg(std::string& result, std::string& arg, size_t sub, const std:
 	}
 }
 
+using namespace origin;
+
 int main(int argc, char** argv) {
 	prog = "originc";
 	std::vector<std::string> args;
@@ -96,11 +101,12 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 	bool requires_input = true;
-	std::string target_str;
-	std::string output_str;
+	std::string target_str = "c";
+	std::string output_str = "a.out";
 	std::string include_str;
 	std::string input_str;
-	bool compile_file;
+	bool compile_file = false;
+	bool make_def = false;
 	FILE* x = stdout;
 	for (size_t i = 0; i < args.size(); ++i) {
 		std::string arg = args[i];
@@ -123,6 +129,7 @@ int main(int argc, char** argv) {
 		else if (starts_with(arg, "-o")) single_char_arg(output_str, args, i);
 		else if (starts_with(arg, "-I")) single_char_arg(include_str, args, i);
 		else if (arg == "--file" || arg == "-f") compile_file = true;
+		else if (arg == "--make-def" || arg == "-d") make_def = true;
 		else if (starts_with(arg, "-")) {
 			std::cerr << rang::style::bold << prog << ": " << rang::fgB::red
 				<< "error: " << rang::style::reset << "unrecognized command line option "
@@ -139,6 +146,27 @@ int main(int argc, char** argv) {
 				input_str = arg;
 			}
 		}
+	}
+	if (requires_input && input_str == "") {
+		std::cerr << rang::style::bold << prog << ": " << rang::fgB::red
+			<< "fatal error: " << rang::style::reset << "no input files\n" << rang::style::reset;
+		std::cerr << "compilation terminated.\n";
+		return 1;
+	}
+	if (make_def) {
+		std::ifstream stream(input_str);
+		std::vector<diagnostic> diagnostics;
+		lexer lex(stream, diagnostics);
+		parser parse(lex, diagnostics);
+		program* prog = parse.read_program();
+		std::ofstream ostream(output_str, std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
+		encode(ostream, prog);
+	}
+	else {
+		std::cerr << rang::style::bold << prog << ": " << rang::fgB::red
+			<< "fatal error: " << rang::style::reset << "compilation type is not yet supported\n" << rang::style::reset;
+		std::cerr << "compilation terminated.\n";
+		return 1;
 	}
 	return 0;
 }
