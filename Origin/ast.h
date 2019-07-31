@@ -16,6 +16,9 @@ namespace origin {
 	class typing {
 	public:
 		std::string name;
+		/* This stores the original, written name of the type */
+		/* The way this works is by simply not changing this field */
+		/* In the patch function in type_analysis.cpp*/
 		std::string alias_name;
 		bool alias;
 		std::vector<typing*> templates;
