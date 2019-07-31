@@ -17,6 +17,9 @@ namespace origin {
 			input.read_msg(token_type::symbol, "]", "to close category");
 			return result;
 		}
+		else {
+			throw "check if category before reading";
+		}
 	}
 
 	pair package_parser::next_pair() {
