@@ -17,7 +17,7 @@ namespace origin {
 
 	struct token {
 		token_type type = token_type::invalid_token;
-		std::istream* stream;
+		std::istream* stream = nullptr;
 		std::string value;
 		size_t start;
 		size_t end;
