@@ -20,7 +20,7 @@ namespace origin {
 		/* The way this works is by simply not changing this field */
 		/* In the patch function in type_analysis.cpp*/
 		std::string alias_name;
-		bool alias;
+		bool alias = false;
 		std::vector<typing*> templates;
 		token start;
 		token generic_token;
@@ -153,7 +153,7 @@ namespace origin {
 		std::vector<access> accesses;
 		bool is_struct;
 		std::vector<std::string> generics;
-		bool variadic;
+		bool variadic = false;
 		class program* program;
 	};
 }
