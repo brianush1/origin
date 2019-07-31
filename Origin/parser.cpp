@@ -397,7 +397,7 @@ namespace origin {
 	vardecl* parser::read_vardecl() {
 		auto result = memory.allocate<vardecl>();
 		result->start = lexer.peek();
-		result->typing = read_typing();
+		result->type = read_typing();
 		result->var_token = lexer.read(token_type::identifier);
 		result->variable = result->var_token.value;
 		if (lexer.is_next(token_type::symbol, "("s)) {
@@ -426,18 +426,18 @@ namespace origin {
 				lexer.read_msg(token_type::symbol, ")"s, "to close parenthesis"s);
 			}
 			token tend = lexer.last();
-			lambda->return_type = result->typing;
+			lambda->return_type = result->type;
 			lambda->block = read_block();
 			lambda->end = lexer.last();
 			result->init_value = lambda;
-			result->typing = memory.allocate<typing>();
-			result->typing->start = lambda->return_type->start;
-			result->typing->generic_token = lambda->return_type->start;
-			result->typing->end = tend;
-			result->typing->alias_name = result->typing->name = "stdlib::core::function";
-			result->typing->templates.push_back(lambda->return_type);
+			result->type = memory.allocate<typing>();
+			result->type->start = lambda->return_type->start;
+			result->type->generic_token = lambda->return_type->start;
+			result->type->end = tend;
+			result->type->alias_name = result->type->name = "stdlib::core::function";
+			result->type->templates.push_back(lambda->return_type);
 			for (auto type : lambda->param_types) {
-				result->typing->templates.push_back(type);
+				result->type->templates.push_back(type);
 			}
 		}
 		else if (lexer.is_next(token_type::symbol, "="s)) {
@@ -488,7 +488,7 @@ namespace origin {
 		for (auto type : lambda->param_types) {
 			typing->templates.push_back(type);
 		}
-		lambda->typing = typing;
+		lambda->type = typing;
 		return lambda;
 	}
 
@@ -623,7 +623,7 @@ namespace origin {
 					// should I maybe check that the parameters the operators take in are valid?
 					// maybe just warn about it, but not enforce it
 					vardecl->init_value = lambda;
-					vardecl->typing = lambda->typing;
+					vardecl->type = lambda->type;
 					vardecl->end = lexer.last();
 					result->vardecls.push_back(vardecl);
 					result->accesses.push_back(current_access);

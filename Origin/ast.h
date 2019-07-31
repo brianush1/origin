@@ -26,7 +26,7 @@ namespace origin {
 
 	class expr {
 	public:
-		class typing* typing;
+		typing* type;
 		token start;
 		token end;
 
@@ -127,7 +127,7 @@ namespace origin {
 	public:
 		token var_token;
 		std::string variable;
-		class typing* typing;
+		typing* type;
 		expr* init_value;
 	};
 

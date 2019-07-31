@@ -101,7 +101,7 @@ namespace origin {
 		}
 
 		virtual void walk(vardecl* stat) {
-			walk(stat->typing);
+			walk(stat->type);
 			if (stat->init_value != nullptr) {
 				walk_expr(stat->init_value);
 			}
@@ -163,7 +163,7 @@ namespace origin {
 			for (auto type : expr->param_types) {
 				typing->templates.push_back(type);
 			}
-			expr->typing = typing;
+			expr->type = typing;
 		}
 
 		virtual void walk(parenthetical* expr) {
@@ -291,7 +291,7 @@ namespace origin {
 			if (stat->init_value != nullptr) {
 				result->init_value = walk_expr(stat->init_value);
 			}
-			result->typing = walk(stat->typing);
+			result->type = walk(stat->type);
 			result->variable = stat->variable;
 			result->var_token = stat->var_token;
 			return result;
@@ -339,7 +339,7 @@ namespace origin {
 			auto result = memory.allocate<error_expr>();
 			result->start = expr->start;
 			result->end = expr->end;
-			result->typing = walk(expr->typing);
+			result->type = walk(expr->type);
 			return result;
 		}
 
@@ -355,7 +355,7 @@ namespace origin {
 				clone.push_back(walk(t));
 			}
 			result->param_types = clone;
-			result->typing = walk(expr->typing);
+			result->type = walk(expr->type);
 			return result;
 		}
 
@@ -364,7 +364,7 @@ namespace origin {
 			result->start = expr->start;
 			result->end = expr->end;
 			result->expr = walk_expr(expr->expr);
-			result->typing = walk(expr->typing);
+			result->type = walk(expr->type);
 			return result;
 		}
 
@@ -373,7 +373,7 @@ namespace origin {
 			result->start = expr->start;
 			result->end = expr->end;
 			result->value = expr->value;
-			result->typing = walk(expr->typing);
+			result->type = walk(expr->type);
 			return result;
 		}
 
@@ -382,7 +382,7 @@ namespace origin {
 			result->start = expr->start;
 			result->end = expr->end;
 			result->name = expr->name;
-			result->typing = walk(expr->typing);
+			result->type = walk(expr->type);
 			return result;
 		}
 
@@ -393,7 +393,7 @@ namespace origin {
 			result->object = walk_expr(expr->object);
 			result->name = expr->name;
 			result->name_token = expr->name_token;
-			result->typing = walk(expr->typing);
+			result->type = walk(expr->type);
 			return result;
 		}
 
@@ -403,7 +403,7 @@ namespace origin {
 			result->end = expr->end;
 			result->left = walk_expr(expr->left);
 			result->right = walk_expr(expr->right);
-			result->typing = walk(expr->typing);
+			result->type = walk(expr->type);
 			return result;
 		}
 
@@ -411,7 +411,7 @@ namespace origin {
 			auto result = memory.allocate<call_expr>();
 			result->start = expr->start;
 			result->end = expr->end;
-			result->typing = walk(expr->typing);
+			result->type = walk(expr->type);
 			result->function = walk_expr(expr->function);
 			std::vector<origin::expr*> clone;
 			for (auto t : expr->args) {
@@ -429,7 +429,7 @@ namespace origin {
 			result->right = walk_expr(expr->right);
 			result->op = expr->op;
 			result->op_token = expr->op_token;
-			result->typing = walk(expr->typing);
+			result->type = walk(expr->type);
 			return result;
 		}
 
@@ -439,7 +439,7 @@ namespace origin {
 			result->end = expr->end;
 			result->op = expr->op;
 			result->expr = walk_expr(expr->expr);
-			result->typing = walk(expr->typing);
+			result->type = walk(expr->type);
 			return result;
 		}
 
@@ -536,13 +536,13 @@ namespace origin {
 			current_scope->declare("self", typing);
 			for (auto stat : clone->vardecls) {
 				if (stat->init_value) t.walk_expr(stat->init_value);
-				if (stat->typing != nullptr) {
-					t.walk(stat->typing);
+				if (stat->type != nullptr) {
+					t.walk(stat->type);
 				}
 			}
 			for (auto stat : clone->vardecls) {
-				if (stat->typing != nullptr) {
-					patch(stat->typing);
+				if (stat->type != nullptr) {
+					patch(stat->type);
 				}
 			}
 			for (auto stat : clone->vardecls) {
@@ -620,7 +620,7 @@ namespace origin {
 		if (current_scope->has(stat->variable)) {
 			diagnostics.push_back(warn("duplicate variable declaration"s, stat->var_token));
 		}
-		current_scope->declare(stat->variable, patch(stat->typing));
+		current_scope->declare(stat->variable, patch(stat->type));
 	}
 
 	void type_assigner::walk(expr_stat* stat) {
@@ -648,7 +648,7 @@ namespace origin {
 	void type_assigner::walk(error_expr* expr) {
 		auto typing = memory.allocate<origin::typing>();
 		typing->alias_name = typing->name = "<error type>";
-		expr->typing = typing;
+		expr->type = typing;
 	}
 
 	void type_assigner::walk(lambda* expr) {
@@ -665,40 +665,40 @@ namespace origin {
 		for (auto type : expr->param_types) {
 			typing->templates.push_back(type);
 		}
-		expr->typing = typing;
+		expr->type = typing;
 	}
 
 	void type_assigner::walk(parenthetical* expr) {
 		walk_expr(expr->expr);
-		expr->typing = expr->expr->typing;
+		expr->type = expr->expr->type;
 	}
 
 	void type_assigner::walk(int_literal* expr) {
 		auto int_type = memory.allocate<typing>();
 		int_type->alias_name = int_type->name = "stdlib::core::int64";
-		expr->typing = int_type;
+		expr->type = int_type;
 	}
 
 	void type_assigner::walk(variable* expr) {
 		if (typing* typing = current_scope->get(expr->name)) {
-			expr->typing = typing;
+			expr->type = typing;
 		} else {
 			diagnostics.push_back(error("undefined variable"s, expr->start, expr->end));
 			typing = memory.allocate<origin::typing>();
 			typing->alias_name = typing->name = "<error type>";
-			expr->typing = typing;
+			expr->type = typing;
 		}
 	}
 
 	void type_assigner::walk(member* expr) {
 		walk_expr(expr->object);
-		if (classdef* classdef = find_class(expr->object->typing)) {
+		if (classdef* classdef = find_class(expr->object->type)) {
 			size_t i = 0;
 			for (auto decl : classdef->vardecls) {
 				auto access = classdef->accesses[i++];
 				bool accessible = access == public_access || classdef->program == current_program;
 				if (decl->variable == expr->name && accessible) {
-					expr->typing = decl->typing;
+					expr->type = decl->type;
 					return;
 				}
 			}
@@ -717,11 +717,11 @@ namespace origin {
 			for (auto decl : classdef->vardecls) {
 				auto access = classdef->accesses[i++];
 				bool accessible = access == public_access || classdef->program == current_program;
-				if (decl->variable == name && accessible && decl->typing->name == "stdlib::core::function") {
+				if (decl->variable == name && accessible && decl->type->name == "stdlib::core::function") {
 					found_overload = true;
-					origin::typing* return_type = decl->typing->templates[0];
+					origin::typing* return_type = decl->type->templates[0];
 					std::vector<origin::typing*> param_types;
-					auto list = decl->typing->templates;
+					auto list = decl->type->templates;
 					for (size_t i = 1; i < list.size(); ++i) param_types.push_back(list[i]);
 					if (param_types.size() != expected_params.size()) continue;
 					for (size_t i = 0; i < param_types.size(); ++i) {
@@ -738,7 +738,7 @@ namespace origin {
 	void type_assigner::walk(subscript* expr) {
 		walk_expr(expr->left);
 		walk_expr(expr->right);
-		vardecl* overload = find_overload("operator["s, expr->left->typing, std::vector<origin::typing*>({ expr->right->typing }));
+		vardecl* overload = find_overload("operator["s, expr->left->type, std::vector<origin::typing*>({ expr->right->type }));
 		if (overload == bad_ptr) {
 			diagnostics.push_back(error("no overload of member operator[] matches the given parameters"s,
 				expr->left->start, expr->left->end));
@@ -748,7 +748,7 @@ namespace origin {
 				expr->left->start, expr->left->end));
 		}
 		else {
-			expr->typing = overload->typing->templates[0];
+			expr->type = overload->type->templates[0];
 		}
 	}
 
@@ -759,9 +759,9 @@ namespace origin {
 		}
 		std::vector<typing*> types;
 		for (auto arg : expr->args) {
-			types.push_back(arg->typing);
+			types.push_back(arg->type);
 		}
-		vardecl* overload = find_overload("operator("s, expr->function->typing, types);
+		vardecl* overload = find_overload("operator("s, expr->function->type, types);
 		if (overload == bad_ptr) {
 			diagnostics.push_back(error("no overload of member operator() matches the given parameters"s,
 				expr->function->start, expr->function->end));
@@ -771,7 +771,7 @@ namespace origin {
 				expr->function->start, expr->function->end));
 		}
 		else {
-			expr->typing = overload->typing->templates[0];
+			expr->type = overload->type->templates[0];
 		}
 	}
 
@@ -782,18 +782,18 @@ namespace origin {
 			if ((var = dynamic_cast<variable*>(expr->left)) || (mem = dynamic_cast<member*>(expr->left))) {
 				walk_expr(expr->left);
 				walk_expr(expr->right);
-				if (!type_equals(expr->left->typing, expr->right->typing)) {
+				if (!type_equals(expr->left->type, expr->right->type)) {
 					diagnostics.push_back(error("type mismatch"s,
 						expr->left->start, expr->left->end));
 				}
-				expr->typing = expr->left->typing;
+				expr->type = expr->left->type;
 			}
 			else if (auto subs = dynamic_cast<subscript*>(expr->left)) {
 				walk_expr(subs->left);
 				walk_expr(subs->right);
 				walk_expr(expr->right);
-				vardecl* overload = find_overload("operator[="s, subs->left->typing, std::vector<origin::typing*>({
-					subs->right->typing, expr->right->typing }));
+				vardecl* overload = find_overload("operator[="s, subs->left->type, std::vector<origin::typing*>({
+					subs->right->type, expr->right->type }));
 				if (overload == bad_ptr) {
 					diagnostics.push_back(error("no overload of member operator[]= matches the given parameters"s,
 						expr->left->start, expr->left->end));
@@ -803,7 +803,7 @@ namespace origin {
 						expr->left->start, expr->left->end));
 				}
 				else {
-					expr->typing = overload->typing->templates[0];
+					expr->type = overload->type->templates[0];
 				}
 			}
 			else {
@@ -815,8 +815,8 @@ namespace origin {
 		}
 		walk_expr(expr->left);
 		walk_expr(expr->right);
-		vardecl* overload = find_overload("operator"s + expr->op, expr->left->typing, std::vector<origin::typing*>({
-			expr->right->typing }));
+		vardecl* overload = find_overload("operator"s + expr->op, expr->left->type, std::vector<origin::typing*>({
+			expr->right->type }));
 		if (overload == bad_ptr) {
 			diagnostics.push_back(error("no overload of member operator"s + expr->op + " matches the given parameters"s,
 				expr->left->start, expr->left->end));
@@ -826,13 +826,13 @@ namespace origin {
 				expr->left->start, expr->left->end));
 		}
 		else {
-			expr->typing = overload->typing->templates[0];
+			expr->type = overload->type->templates[0];
 		}
 	}
 
 	void type_assigner::walk(un_expr* expr) {
 		walk_expr(expr->expr);
-		vardecl* overload = find_overload("operator"s + expr->op, expr->expr->typing, {});
+		vardecl* overload = find_overload("operator"s + expr->op, expr->expr->type, {});
 		if (overload == bad_ptr) {
 			diagnostics.push_back(error("no overload of member operator"s + expr->op + " matches the given parameters"s,
 				expr->expr->start, expr->expr->end));
@@ -842,7 +842,7 @@ namespace origin {
 				expr->expr->start, expr->expr->end));
 		}
 		else {
-			expr->typing = overload->typing->templates[0];
+			expr->type = overload->type->templates[0];
 		}
 	}
 
@@ -884,8 +884,8 @@ namespace origin {
 			for (auto classdef : program->classes) {
 				if (classdef->generics.size() == 0) {
 					for (auto stat : classdef->vardecls) {
-						if (stat->typing != nullptr) {
-							patch(stat->typing);
+						if (stat->type != nullptr) {
+							patch(stat->type);
 						}
 					}
 				}
@@ -895,7 +895,7 @@ namespace origin {
 			current_program = program;
 			downscope();
 			for (auto s : program->vardecls) {
-				current_scope->declare(s->variable, s->typing);
+				current_scope->declare(s->variable, s->type);
 			}
 			for (auto classdef : program->classes) {
 				if (classdef->generics.size() == 0) {
